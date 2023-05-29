@@ -1,11 +1,20 @@
 const canvasSketch = require('canvas-sketch');
 const random = require('canvas-sketch-util/random');
+const math = require('canvas-sketch-util/math');
 
 class Vector {
     constructor(x, y) {
         this.x = x;
         this.y = y;
     }
+
+    // Calculate distance between initial point and destination > pythagoras
+    getDistance(v) {
+        const dx = this.x - v.x;
+        const dy = this.y - v.y;
+        return Math.sqrt(dx*dx + dy*dy);
+    }
+
 }
 
 class Agent {
@@ -43,6 +52,13 @@ class Agent {
         if(this.pos.x <= 0 || this.pos.x >= width) this.vel.x *= -1;
         if(this.pos.y <= 0 || this.pos.y >= height) this.vel.y *= -1;
     }
+
+    wrap(width, height) {
+        if(this.pos.x > width) this.pos.x = 0;
+        if(this.pos.y > height) this.pos.y = 0;
+        if(this.pos.x < 0) this.pos.x = width;
+        if(this.pos.y < 0) this.pos.y = height;
+    }
 }
 
 
@@ -67,9 +83,31 @@ const sketch = ({context, width, height}) => {
         context.fillStyle = 'white';
         context.fillRect(0, 0, width, height);
 
+
+        for (let i = 0; i < agents.length; i++) {
+            const agent = agents[i];
+
+            for (let j = i +1; j < agents.length; j++) {
+                const other = agents[j];
+
+                const distance = agent.pos.getDistance(other.pos);
+
+                // draw only if
+                if(distance > 200) continue;
+
+                context.lineWidth = math.mapRange(distance, 0, 200, 12, 1);
+
+                context.beginPath();
+                context.moveTo(agent.pos.x, agent.pos.y);
+                context.lineTo(other.pos.x, other.pos.y);
+                context.stroke();
+            }
+        }
+
         agents.forEach(agent => {
             agent.update();
-            agent.bounce(width, height);
+            //agent.bounce(width, height);
+            agent.wrap(width, height);
             agent.draw(context);
         });
 
