@@ -7,14 +7,6 @@ const settings = {
     // animate: true
 };
 
-
-class Arc {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-}
-
 const sketch = () => {
     return ({ context, width, height }) => {
         context.fillStyle = 'black';
